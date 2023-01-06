@@ -52,6 +52,38 @@ class User {
       });
     }
 
+    getCart(){
+      const db = getdb();
+      const productIds = this.cart.items.map(item => {
+        return item.productId;
+      });
+      return db.collection('products').find({_id :{$in: productIds} }).toArray()
+          .then(products => {
+              return products.map(product => {
+                return{
+                  ...product,
+                  quantity: this.cart.items.find(i => {
+                    return i.productId.toString() === product._id.toString() 
+                  }).quantity
+                }
+              })
+          })
+    }
+
+    deleteCartitem(prodId){
+      const db = getdb();
+      const products = this.cart.items;
+      const productindex = this.cart.items.findIndex(cp => {
+        return cp.productId.toString() === prodId.toString();
+      });
+      if(productindex >= 0){
+        products.splice(productindex,1);
+      }
+      const updatedcart = { items: products }
+      return db.collection('users')
+      .updateOne({ _id: this._id }, {$set: {cart: updatedcart}});
+    }
+
     updateCart(product){
       const cartproductindex = this.cart.items.findIndex(cp => {
         return cp.productId.toString() === product._id.toString();
