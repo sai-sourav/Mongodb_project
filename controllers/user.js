@@ -6,7 +6,11 @@ exports.createuser = (req, res, next) => {
     const phone = req.body.phone;
     const street = req.body.street;
     const city = req.body.city;
-    const user = new User(null, name, phone, street, city);
+    const cart = {
+      items: []
+    }
+    const orders = []
+    const user = new User(null, name, phone, street, city, cart, orders);
     user.save()
     .then(result => {
         console.log('User Created');
@@ -21,11 +25,11 @@ exports.finduser = (req, res, next) => {
     const userid = req.params.id;
     User.findById(userid)
     .then(user => {
-        // res.render('shop/product-detail', {
-        //   product: product,
-        //   pageTitle: product.title,
-        //   path: '/products'
-        // });
+        res.render('shop/product-detail', {
+          product: product,
+          pageTitle: product.title,
+          path: '/products'
+        });
       })
       .catch(err => console.log(err));
 }

@@ -2,12 +2,13 @@ const getdb = require('../util/database').getdb;
 const mongodb = require('mongodb');
 
 class User {
-    constructor(id, name, phone, street, city, cart){
+    constructor(id, name, phone, street, city, cart, orders){
         this.name = name;
         this.phone = phone;
         this.street = street;
         this.city = city;
         this.cart = cart;
+        this.orders = orders;
         this._id = id ? new mongodb.ObjectId(id) : null;
     }
 
@@ -50,6 +51,46 @@ class User {
       .catch(err => {
         console.log(err);
       });
+    }
+
+    createOrder(){
+      const db = getdb();
+      return this.getCart()
+      .then(products => {
+        const order = {
+          items: [...products],
+          UserId: this._id
+        }
+        return db.collection('orders')
+        .insertOne(order)
+        .then(result => {
+          let ordersarray;
+          if(this.orders){
+            ordersarray = this.orders;
+          }else{
+            ordersarray = []
+          }
+          ordersarray.push(result.insertedId);
+          return db.collection('users')
+          .updateOne({ _id: this._id }, {$set: {orders: ordersarray}})
+          .then(result => {
+            this.cart.items = []
+            const updatedcart = { items: [] }
+            return db.collection('users')
+            .updateOne({ _id: this._id }, {$set: {cart: updatedcart}});
+          }).catch(err => {
+            console.log(err);
+          });
+        })
+      })
+    }
+
+    getOrders(){
+      const db = getdb();
+      return db.collection('orders').find({_id :{$in: this.orders} }).toArray()
+          .then(orders => {
+            return orders;
+          })
     }
 
     getCart(){
