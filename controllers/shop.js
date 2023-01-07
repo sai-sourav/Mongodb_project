@@ -108,6 +108,7 @@ exports.postOrder = (req, res, next) => {
             description: product.productId.description,
             imageUrl : product.productId.imageUrl,
             userId : product.productId.userId,
+            // ...product.productId._doc,
             quantity: product.quantity
           }
         })
