@@ -23,7 +23,12 @@ const UserSchema = new Schema({
                 quantity: { type: Number, required: true }
             }
         ]
-    }
+    },
+    orders: [
+        {
+            orderId : { type: Schema.Types.ObjectId, ref: 'Order', required: true  }
+        }
+    ]
 })
 
 UserSchema.methods.addToCart = function(product) {
