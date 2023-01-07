@@ -1,9 +1,8 @@
 const Product = require('../models/product');
 const User = require('../models/user');
-const mongodb = require('mongodb');
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchall()
+  Product.find()
     .then(products => {
       res.render('shop/product-list', {
         prods: products,
@@ -20,6 +19,7 @@ exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
   Product.findById(prodId)
     .then(product => {
+      console.log(product);
       res.render('shop/product-detail', {
         product: product,
         pageTitle: product.title,
@@ -30,7 +30,7 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-  Product.fetchall()
+  Product.find()
     .then(products => {
       res.render('shop/index', {
         prods: products,
