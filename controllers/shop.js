@@ -45,15 +45,29 @@ exports.getIndex = (req, res, next) => {
 
 exports.getCart = (req, res, next) => {
   req.user
-    .getCart()
-    .then(products => {
-      res.render('shop/cart', {
-        path: '/cart',
-        pageTitle: 'Your Cart',
-        products: products
-      });
-    })
-    .catch(err => console.log(err));
+    .populate('cart.items.productId', function (err, user) {
+      if (err) console.log(err);
+      else{
+        const products = user.cart.items
+        res.render('shop/cart', {
+          path: '/cart',
+          pageTitle: 'Your Cart',
+          products: products
+        });
+      }
+    });
+    // .populate('cart.items.productId')
+    // .execPopulate()
+    // .then(user => {
+    //   console.log(user);
+    //   const products = [];
+      // res.render('shop/cart', {
+      //   path: '/cart',
+      //   pageTitle: 'Your Cart',
+      //   products: products
+      // });
+    // })
+    // .catch(err => console.log(err));
 
 };
 
@@ -62,7 +76,7 @@ exports.postCart = async (req, res, next) => {
   const user = req.user;
   try{
     const product = await Product.findById(prodId);
-    const result = await  user.updateCart(product);
+    const result = await  user.addToCart(product);
     res.redirect('/cart');
   }catch(err){
     console.log(err);
